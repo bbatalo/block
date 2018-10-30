@@ -11,23 +11,23 @@ Under construction.
 The simplest and most common usage of Block is to block all sites in a curated list. To do this, run the following command in the console:
 
 ```
-block
+$ block
 ```
 
 and to unblock, run:
 
 ```
-block unblock
+$ block unblock
 ```
 
 To block a single web site, run:
 
 ```
-block website_url
+$ block website_url
 ```
 
 where *website_url* refers to, you guessed it, the URL of the website you want to block. To reverse the action, run
 
 ```
-block unblock website_url
+$ block unblock website_url
 ```
