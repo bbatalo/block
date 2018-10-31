@@ -1,5 +1,10 @@
 # Block
 
+
+[![PyPI](https://img.shields.io/badge/pypi-0.0.1-blue.svg)](https://pypi.org/project/block-hosts/0.0.1/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
+
 Block is a simple Python-based command line utility for blocking access to web-sites in order to stop you from procrastinating, because you can't do it by yourself. Relies on modifying the hosts file.
 
 ## Installing
