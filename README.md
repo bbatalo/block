@@ -11,7 +11,7 @@ Under construction.
 The simplest and most common usage of Block is to block all sites in a curated list. To do this, run the following command in the console:
 
 ```
-$ block
+$ block curated
 ```
 
 and to unblock, run:
@@ -31,3 +31,5 @@ where *website_url* refers to, you guessed it, the URL of the website you want t
 ```
 $ block unblock website_url
 ```
+
+Note: modifying the hosts file requires administrator privileges, so make sure that the terminal is in elevated mode.
