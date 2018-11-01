@@ -19,6 +19,7 @@ SITES = [
     "ispovesti.com",
     "blic.rs",
     "www.hltv.org",
+    "www.twitch.tv",
 ]
 
 HOSTSPATH = None
