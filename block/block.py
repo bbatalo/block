@@ -2,9 +2,21 @@ import python_hosts
 import click
 import sys
 
-SITES = ["facebook", "twitter", "reddit", "instagram", "goodreads", "9gag"]
-PREFIX = "www"
-SUFIX = "com"
+SITES = [
+    "www.facebook.com",
+    "twitter.com",
+    "www.reddit.com",
+    "www.instagram.com",
+    "www.goodreads.com",
+    "9gag.com",
+    "yts.ag",
+    "www.snapchat.com",
+    "vk.com",
+    "www.4chan.com",
+    "www.buzzfeed.com",
+    "www.flickr.com",
+    "news.ycombinator.com",
+]
 
 HOSTSPATH = None
 if sys.platform in ("win32", "cygwin"):
@@ -22,12 +34,10 @@ def cli():
 def curated():
     hosts = python_hosts.Hosts(HOSTSPATH)
     for site in SITES:
-        names = [".".join((site, SUFIX)), ".".join((PREFIX, site, SUFIX))]
-        for name in names:
-            new_entry = python_hosts.HostsEntry(
-                entry_type="ipv4", address="127.0.0.1", names=[name]
-            )
-            hosts.add([new_entry])
+        new_entry = python_hosts.HostsEntry(
+            entry_type="ipv4", address="127.0.0.1", names=[site]
+        )
+        hosts.add([new_entry])
 
     try:
         hosts.write()
@@ -41,9 +51,7 @@ def curated():
 def unblock():
     hosts = python_hosts.Hosts(HOSTSPATH)
     for site in SITES:
-        names = [".".join((site, SUFIX)), ".".join((PREFIX, site, SUFIX))]
-        for name in names:
-            hosts.remove_all_matching(name=name)
+        hosts.remove_all_matching(name=site)
 
     try:
         hosts.write()
@@ -53,8 +61,16 @@ def unblock():
         )
 
 
+@click.command()
+def ls():
+    print("The following is a list of curated sites.\n")
+    for site in SITES:
+        print(site)
+
+
 cli.add_command(curated)
 cli.add_command(unblock)
+cli.add_command(ls)
 
 if __name__ == "__main__":
     cli()
