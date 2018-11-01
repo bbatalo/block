@@ -16,6 +16,9 @@ SITES = [
     "www.buzzfeed.com",
     "www.flickr.com",
     "news.ycombinator.com",
+    "ispovesti.com",
+    "blic.rs",
+    "www.hltv.org",
 ]
 
 HOSTSPATH = None
@@ -30,7 +33,7 @@ def cli():
     pass
 
 
-@click.command()
+@click.command(help="Blocks sites from the curated list of sites.")
 def curated():
     hosts = python_hosts.Hosts(HOSTSPATH)
     for site in SITES:
@@ -47,7 +50,7 @@ def curated():
         )
 
 
-@click.command()
+@click.command(help="Unblocks sites from the curated list of sites")
 def unblock():
     hosts = python_hosts.Hosts(HOSTSPATH)
     for site in SITES:
@@ -61,7 +64,7 @@ def unblock():
         )
 
 
-@click.command()
+@click.command(help="Prints a list of curated sites that will be blocked by default.")
 def ls():
     print("The following is a list of curated sites.\n")
     for site in SITES:
