@@ -38,3 +38,5 @@ $ block unblock website_url
 ```
 
 Note: modifying the hosts file requires administrator privileges, so make sure that the terminal is in elevated mode.
+
+Another note: you might need to restart the browser for changes to take effect.

@@ -2,7 +2,7 @@ import python_hosts
 import click
 import sys
 
-SITES = ["facebook", "twitter", "reddit", "instagram"]
+SITES = ["facebook", "twitter", "reddit", "instagram", "goodreads", "9gag"]
 PREFIX = "www"
 SUFIX = "com"
 
@@ -29,7 +29,12 @@ def curated():
             )
             hosts.add([new_entry])
 
-    hosts.write()
+    try:
+        hosts.write()
+    except python_hosts.exception.UnableToWriteHosts:
+        print(
+            "Unable to write to hosts file. Make sure Block has administrator privileges."
+        )
 
 
 @click.command()
@@ -40,7 +45,12 @@ def unblock():
         for name in names:
             hosts.remove_all_matching(name=name)
 
-    hosts.write()
+    try:
+        hosts.write()
+    except python_hosts.exception.UnableToWriteHosts:
+        print(
+            "Unable to write to hosts file. Make sure Block has administrator privileges."
+        )
 
 
 cli.add_command(curated)
