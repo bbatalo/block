@@ -1,6 +1,8 @@
-import python_hosts
 import click
 import sys
+
+from python_hosts.hosts import Hosts, HostsEntry
+from python_hosts.exception import UnableToWriteHosts
 
 SITES = [
     "www.facebook.com",
@@ -36,43 +38,35 @@ def cli():
 
 @click.command(help="Block all sites from the curated list of sites.")
 def all():
-    hosts = python_hosts.Hosts(HOSTS_PATH)
+    hosts = Hosts(HOSTS_PATH)
 
     entries = []
-    begin_comment_entry = python_hosts.HostsEntry(
+    begin_comment_entry = HostsEntry(
         entry_type="comment",
         comment="# BLOCK ### This is the beginning of Block entries. ### BLOCK",
         names=[],
     )
-    # hosts.add([begin_comment_entry])
     entries.append(begin_comment_entry)
 
     for site in SITES:
-        new_entry = python_hosts.HostsEntry(
-            entry_type="ipv4", address="127.0.0.1", names=[site]
-        )
-        # hosts.add([new_entry])
+        new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
         entries.append(new_entry)
 
-    end_comment_entry = python_hosts.HostsEntry(
+    end_comment_entry = HostsEntry(
         entry_type="comment",
         comment="# BLOCK ### This is the end of Block entries. ### BLOCK",
         names=[],
     )
-    # hosts.add([end_comment_entry])
     entries.append(end_comment_entry)
 
     hosts.add(entries)
-
-    print(hosts.entries)
-
     try:
         hosts.write()
         print(
             f"All websites in a curated list have been blocked. Please reopen your browser to get rid of cached websites."
         )
         print(f"To see a complete list of blocked websites, type 'block ls'")
-    except python_hosts.exception.UnableToWriteHosts:
+    except UnableToWriteHosts:
         print(
             f"Unable to write to hosts file. Make sure Block has administrator privileges."
         )
@@ -81,16 +75,14 @@ def all():
 @click.command(help="Block a single site, defined by the positional argument.")
 @click.argument("site")
 def single(site):
-    hosts = python_hosts.Hosts(HOSTS_PATH)
-    new_entry = python_hosts.HostsEntry(
-        entry_type="ipv4", address="127.0.0.1", names=[site]
-    )
+    hosts = Hosts(HOSTS_PATH)
+    new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
 
     hosts.add([new_entry])
 
     try:
         hosts.write()
-    except python_hosts.exception.UnableToWriteHosts:
+    except UnableToWriteHosts:
         print(
             "Unable to write to hosts file. Make sure Block has administrator privileges."
         )
@@ -106,7 +98,7 @@ def single(site):
     help="Specify the site to unblock. The command will unblock the specified site only.",
 )
 def unblock(site):
-    hosts = python_hosts.Hosts(HOSTS_PATH)
+    hosts = Hosts(HOSTS_PATH)
 
     if site is None:
         for s in SITES:
@@ -116,7 +108,7 @@ def unblock(site):
 
     try:
         hosts.write()
-    except python_hosts.exception.UnableToWriteHosts:
+    except UnableToWriteHosts:
         print(
             "Unable to write to hosts file. Make sure Block has administrator privileges."
         )

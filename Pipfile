@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 click = "*"
-python-hosts = "*"
+python-hosts = {editable = true, git = "https://github.com/jonhadfield/python-hosts"}
 
 [dev-packages]
 pylint = "*"
