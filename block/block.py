@@ -24,6 +24,27 @@ SITES = [
     "www.twitch.tv",
 ]
 
+PROFILE_SITES = {
+    "SOCIAL": [
+        "www.facebook.com",
+        "twitter.com",
+        "www.reddit.com",
+        "www.instagram.com",
+        "www.goodreads",
+        "www.snapchat",
+        "vk.com",
+        "www.flickr.com",
+    ],
+    "MEME": ["9gag.com", "www.4chan.com"],
+    "NEWS": ["news.ycombinator.com", "blic.rs"],
+    "BLOGS": ["www.buzzfeed.com", "ispovesti.com"],
+    "ESPORTS": ["www.hltv.org", "www.twitch.tv"],
+    "PORN": [],
+    "PIRATE": ["yts.ag"],
+}
+
+PROFILES = ["SOCIAL", "MEME", "NEWS", "BLOGS", "ESPORTS", "PORN", "PIRATE"]
+
 HOSTS_PATH = None
 if sys.platform in ("win32", "cygwin"):
     HOSTS_PATH = "C:/Windows/System32/drivers/etc/hosts"
@@ -36,8 +57,8 @@ def cli():
     pass
 
 
-@click.command(help="Block all sites from the curated list of sites.")
-def all():
+@click.command(name="all", help="Block all sites from the curated list of sites.")
+def block_all():
     hosts = Hosts(HOSTS_PATH)
 
     entries = []
@@ -72,9 +93,40 @@ def all():
         )
 
 
-@click.command(help="Block a single site, defined by the positional argument.")
+@click.command(
+    name="profile",
+    help="Blocks a profile of websites, currently this means just the curated list for that profile.",
+)
+@click.argument("prof")
+def block_profile(prof):
+    hosts = Hosts(HOSTS_PATH)
+
+    if str.upper(prof) in PROFILES:
+        for site in PROFILE_SITES[prof]:
+            new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
+            hosts.add([new_entry])
+    else:
+        print(f"No such profile exists, please try again.")
+
+    try:
+        hosts.write()
+        print(
+            f"All websites from the selected profile have been blocked. Please reopen your browser to get rid of cached websites."
+        )
+        print(
+            f"To see a list of websites blocked by current profile, type 'block ls -profile 'PROFILE_NAME'"
+        )
+    except UnableToWriteHosts:
+        print(
+            f"Unable to write to hosts file. Make sure Block has administrator privileges."
+        )
+
+
+@click.command(
+    name="single", help="Block a single site, defined by the positional argument."
+)
 @click.argument("site")
-def single(site):
+def block_single(site):
     hosts = Hosts(HOSTS_PATH)
     new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
 
@@ -84,7 +136,7 @@ def single(site):
         hosts.write()
     except UnableToWriteHosts:
         print(
-            "Unable to write to hosts file. Make sure Block has administrator privileges."
+            f"Unable to write to hosts file. Make sure Block has administrator privileges."
         )
 
 
@@ -125,8 +177,9 @@ def ls():
         print(site)
 
 
-cli.add_command(all)
-cli.add_command(single)
+cli.add_command(block_all)
+cli.add_command(block_profile)
+cli.add_command(block_single)
 cli.add_command(unblock)
 cli.add_command(ls)
 
