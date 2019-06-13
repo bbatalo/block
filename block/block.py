@@ -62,23 +62,23 @@ def block_all():
     hosts = Hosts(HOSTS_PATH)
 
     entries = []
-    begin_comment_entry = HostsEntry(
-        entry_type="comment",
-        comment="# BLOCK ### This is the beginning of Block entries. ### BLOCK",
-        names=[],
-    )
-    entries.append(begin_comment_entry)
+    # begin_comment_entry = HostsEntry(
+    #     entry_type="comment",
+    #     comment="# BLOCK ### This is the beginning of Block entries. ### BLOCK",
+    #     names=[],
+    # )
+    # entries.append(begin_comment_entry)
 
     for site in SITES:
         new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
         entries.append(new_entry)
 
-    end_comment_entry = HostsEntry(
-        entry_type="comment",
-        comment="# BLOCK ### This is the end of Block entries. ### BLOCK",
-        names=[],
-    )
-    entries.append(end_comment_entry)
+    # end_comment_entry = HostsEntry(
+    #     entry_type="comment",
+    #     comment="# BLOCK ### This is the end of Block entries. ### BLOCK",
+    #     names=[],
+    # )
+    # entries.append(end_comment_entry)
 
     hosts.add(entries)
     try:
@@ -97,12 +97,14 @@ def block_all():
     name="profile",
     help="Blocks a profile of websites, currently this means just the curated list for that profile.",
 )
-@click.argument("prof")
-def block_profile(prof):
+@click.argument("profile")
+def block_profile(profile):
     hosts = Hosts(HOSTS_PATH)
 
-    if str.upper(prof) in PROFILES:
-        for site in PROFILE_SITES[prof]:
+    profile = str.upper(profile)
+
+    if profile in PROFILES:
+        for site in PROFILE_SITES[profile]:
             new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
             hosts.add([new_entry])
     else:
@@ -114,7 +116,7 @@ def block_profile(prof):
             f"All websites from the selected profile have been blocked. Please reopen your browser to get rid of cached websites."
         )
         print(
-            f"To see a list of websites blocked by current profile, type 'block ls -profile 'PROFILE_NAME'"
+            f"To see a list of websites blocked by current profile, type 'block ls -p 'PROFILE_NAME'"
         )
     except UnableToWriteHosts:
         print(
@@ -149,14 +151,24 @@ def block_single(site):
     default=None,
     help="Specify the site to unblock. The command will unblock the specified site only.",
 )
-def unblock(site):
+@click.option(
+    "-p",
+    "--profile",
+    default=None,
+    help="Specify the profile to unblock. The command will unblock all websites listed under that profile.",
+)
+def unblock(site, profile):
     hosts = Hosts(HOSTS_PATH)
 
-    if site is None:
+    if site is None and profile is None:
         for s in SITES:
             hosts.remove_all_matching(name=s)
-    else:
+    elif site is not None:
         hosts.remove_all_matching(name=site)
+    elif profile is not None:
+        profile = str.upper(profile)
+        for s in PROFILE_SITES[profile]:
+            hosts.remove_all_matching(name=s)
 
     try:
         hosts.write()
@@ -169,12 +181,24 @@ def unblock(site):
 @click.command(
     help="Prints a curated list of websites that will be blocked by default."
 )
-def ls():
-    print(
-        "The following is a curated list of websites that will be blocked by default.\n"
-    )
-    for site in SITES:
-        print(site)
+@click.option(
+    "-p",
+    "--profile",
+    default=None,
+    help="List all websites curated under the specified profile.",
+)
+def ls(profile):
+
+    if profile is not None:
+        profile = str.upper(profile)
+        for site in PROFILE_SITES[profile]:
+            print(site)
+    else:
+        print(
+            "The following is a curated list of websites that will be blocked by default.\n"
+        )
+        for site in SITES:
+            print(site)
 
 
 cli.add_command(block_all)

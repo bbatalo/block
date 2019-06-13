@@ -13,7 +13,7 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = "block_hosts"
-DESCRIPTION = "Block helps you stop procrastinating, since you can't do it by yourself. It is a simple command-line utility that relies on modifying the hosts file."
+DESCRIPTION = "Block helps you stop procrastinating, since you can't do it by yourself. It is a simple command-line utility that relies on modifying the hosts file to block websites that you use when procrastinating."
 URL = "https://github.com/bbatalo/block"
 EMAIL = "bbatalo@hotmail.com"
 AUTHOR = "Bojan Batalo"
