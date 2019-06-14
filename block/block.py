@@ -57,7 +57,7 @@ def cli():
     pass
 
 
-@click.command(name="all", help="Block all sites from the curated list of sites.")
+@cli.command(name="block-all", help="Block all sites from the curated list of sites.")
 def block_all():
     hosts = Hosts(HOSTS_PATH)
 
@@ -93,9 +93,8 @@ def block_all():
         )
 
 
-@click.command(
-    name="profile",
-    help="Blocks a profile of websites, currently this means just the curated list for that profile.",
+@cli.command(
+    name="block-profile", help="Blocks several websites under a single profile."
 )
 @click.argument("profile")
 def block_profile(profile):
@@ -124,9 +123,7 @@ def block_profile(profile):
         )
 
 
-@click.command(
-    name="single", help="Block a single site, defined by the positional argument."
-)
+@cli.command(name="block-single", help="Block a single site.")
 @click.argument("site")
 def block_single(site):
     hosts = Hosts(HOSTS_PATH)
@@ -142,33 +139,26 @@ def block_single(site):
         )
 
 
-@click.command(
-    help="Unblock sites from the curated list of sites. Optionally, unblock a single site."
-)
-@click.option(
-    "-s",
-    "--site",
-    default=None,
-    help="Specify the site to unblock. The command will unblock the specified site only.",
-)
-@click.option(
-    "-p",
-    "--profile",
-    default=None,
-    help="Specify the profile to unblock. The command will unblock all websites listed under that profile.",
-)
-def unblock(site, profile):
+@cli.command(help="Unblock all blocked websites.")
+def unblock_all():
     hosts = Hosts(HOSTS_PATH)
-
-    if site is None and profile is None:
-        for s in SITES:
-            hosts.remove_all_matching(name=s)
-    elif site is not None:
+    for site in SITES:
         hosts.remove_all_matching(name=site)
-    elif profile is not None:
-        profile = str.upper(profile)
-        for s in PROFILE_SITES[profile]:
-            hosts.remove_all_matching(name=s)
+    try:
+        hosts.write()
+    except UnableToWriteHosts:
+        print(
+            "Unable to write to hosts file. Make sure Block has administrator privileges."
+        )
+
+
+@cli.command(help="Specify the profile to unblock.")
+@click.argument("profile")
+def unblock_profile(profile):
+    hosts = Hosts(HOSTS_PATH)
+    profile = str.upper(profile)
+    for site in PROFILE_SITES[profile]:
+        hosts.remove_all_matching(name=site)
 
     try:
         hosts.write()
@@ -178,9 +168,20 @@ def unblock(site, profile):
         )
 
 
-@click.command(
-    help="Prints a curated list of websites that will be blocked by default."
-)
+@cli.command(help="Unblock a single website.")
+@click.argument("site")
+def unblock_single(site):
+    hosts = Hosts(HOSTS_PATH)
+    hosts.remove_all_matching(name=site)
+    try:
+        hosts.write()
+    except UnableToWriteHosts:
+        print(
+            "Unable to write to hosts file. Make sure Block has administrator privileges."
+        )
+
+
+@cli.command(help="Prints a curated list of websites that will be blocked by default.")
 @click.option(
     "-p",
     "--profile",
@@ -200,12 +201,6 @@ def ls(profile):
         for site in SITES:
             print(site)
 
-
-cli.add_command(block_all)
-cli.add_command(block_profile)
-cli.add_command(block_single)
-cli.add_command(unblock)
-cli.add_command(ls)
 
 if __name__ == "__main__":
     cli()
