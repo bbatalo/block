@@ -45,40 +45,29 @@ PROFILE_SITES = {
 
 PROFILES = ["SOCIAL", "MEME", "NEWS", "BLOGS", "ESPORTS", "PORN", "PIRATE"]
 
-HOSTS_PATH = None
-if sys.platform in ("win32", "cygwin"):
-    HOSTS_PATH = "C:/Windows/System32/drivers/etc/hosts"
-else:
-    HOSTS_PATH = "/etc/hosts"
+pass_hosts = click.make_pass_decorator(Hosts)
 
 
 @click.group()
-def cli():
-    pass
+@click.pass_context
+def cli(ctx):
+
+    HOSTS_PATH = None
+    if sys.platform in ("win32", "cygwin"):
+        HOSTS_PATH = "C:/Windows/System32/drivers/etc/hosts"
+    else:
+        HOSTS_PATH = "/etc/hosts"
+
+    ctx.obj = Hosts(HOSTS_PATH)
 
 
-@cli.command(name="block-all", help="Block all sites from the curated list of sites.")
-def block_all():
-    hosts = Hosts(HOSTS_PATH)
-
+@cli.command(help="Block all sites from the curated list of sites.")
+@pass_hosts
+def block_all(hosts):
     entries = []
-    # begin_comment_entry = HostsEntry(
-    #     entry_type="comment",
-    #     comment="# BLOCK ### This is the beginning of Block entries. ### BLOCK",
-    #     names=[],
-    # )
-    # entries.append(begin_comment_entry)
-
     for site in SITES:
         new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
         entries.append(new_entry)
-
-    # end_comment_entry = HostsEntry(
-    #     entry_type="comment",
-    #     comment="# BLOCK ### This is the end of Block entries. ### BLOCK",
-    #     names=[],
-    # )
-    # entries.append(end_comment_entry)
 
     hosts.add(entries)
     try:
@@ -97,9 +86,8 @@ def block_all():
     name="block-profile", help="Blocks several websites under a single profile."
 )
 @click.argument("profile")
-def block_profile(profile):
-    hosts = Hosts(HOSTS_PATH)
-
+@pass_hosts
+def block_profile(hosts, profile):
     profile = str.upper(profile)
 
     if profile in PROFILES:
@@ -125,8 +113,8 @@ def block_profile(profile):
 
 @cli.command(name="block-single", help="Block a single site.")
 @click.argument("site")
-def block_single(site):
-    hosts = Hosts(HOSTS_PATH)
+@pass_hosts
+def block_single(hosts, site):
     new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
 
     hosts.add([new_entry])
@@ -140,8 +128,8 @@ def block_single(site):
 
 
 @cli.command(help="Unblock all blocked websites.")
-def unblock_all():
-    hosts = Hosts(HOSTS_PATH)
+@pass_hosts
+def unblock_all(hosts):
     for site in SITES:
         hosts.remove_all_matching(name=site)
     try:
@@ -154,8 +142,8 @@ def unblock_all():
 
 @cli.command(help="Specify the profile to unblock.")
 @click.argument("profile")
-def unblock_profile(profile):
-    hosts = Hosts(HOSTS_PATH)
+@pass_hosts
+def unblock_profile(hosts, profile):
     profile = str.upper(profile)
     for site in PROFILE_SITES[profile]:
         hosts.remove_all_matching(name=site)
@@ -170,8 +158,8 @@ def unblock_profile(profile):
 
 @cli.command(help="Unblock a single website.")
 @click.argument("site")
-def unblock_single(site):
-    hosts = Hosts(HOSTS_PATH)
+@pass_hosts
+def unblock_single(hosts, site):
     hosts.remove_all_matching(name=site)
     try:
         hosts.write()
@@ -203,4 +191,5 @@ def ls(profile):
 
 
 if __name__ == "__main__":
-    cli()
+    cli()  # pylint: disable=no-value-for-parameter
+
