@@ -48,17 +48,20 @@ PROFILES = ["SOCIAL", "MEME", "NEWS", "BLOGS", "ESPORTS", "PORN", "PIRATE"]
 pass_hosts = click.make_pass_decorator(Hosts)
 
 
-@click.group()
-@click.pass_context
-def cli(ctx):
-
+def find_hosts_path():
     HOSTS_PATH = None
     if sys.platform in ("win32", "cygwin"):
         HOSTS_PATH = "C:/Windows/System32/drivers/etc/hosts"
     else:
         HOSTS_PATH = "/etc/hosts"
 
-    ctx.obj = Hosts(HOSTS_PATH)
+    return HOSTS_PATH
+
+
+@click.group()
+@click.pass_context
+def cli(ctx):
+    ctx.obj = Hosts(find_hosts_path())
 
 
 @cli.command(help="Block all sites from the curated list of sites.")
@@ -188,6 +191,12 @@ def ls(profile):
         )
         for site in SITES:
             print(site)
+
+
+@cli.command(help="Shows the location of used hosts file.")
+@pass_hosts
+def show_hosts(hosts):
+    print(f"Using hosts file located in: {hosts.hosts_path}")
 
 
 if __name__ == "__main__":
