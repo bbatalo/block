@@ -34,9 +34,27 @@ PROFILE_SITES = {
         "www.snapchat",
         "vk.com",
         "www.flickr.com",
+        "www.linkedin.com",
+        "www.pinterest.com",
+        "www.tumblr.com",
+        "www.reddit.com",
     ],
     "MEME": ["9gag.com", "www.4chan.com"],
-    "NEWS": ["news.ycombinator.com", "blic.rs"],
+    "NEWS": [
+        "news.ycombinator.com",
+        "blic.rs",
+        "news.yahoo.com",
+        "news.google.com",
+        "www.huffpost.com",
+        "edition.cnn.com",
+        "www.foxnews.com",
+        "www.dailymail.co.uk",
+        "www.washingtonpost.com",
+        "www.wsj.com",
+        "www.bbc.com",
+        "www.usatoday.com",
+        "www.latimes.com",
+    ],
     "BLOGS": ["www.buzzfeed.com", "ispovesti.com"],
     "ESPORTS": ["www.hltv.org", "www.twitch.tv"],
     "PORN": [],
@@ -79,7 +97,9 @@ def block_all(hosts):
 
     """
     entries = []
-    for site in SITES:
+    flatten = lambda l: [item for sublist in l for item in sublist]
+    all_sites = flatten(list(PROFILE_SITES.values()))
+    for site in all_sites:
         new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
         entries.append(new_entry)
 
@@ -145,7 +165,9 @@ def block_single(hosts, site):
 @cli.command(help="Unblock all blocked websites.")
 @pass_hosts
 def unblock_all(hosts):
-    for site in SITES:
+    flatten = lambda l: [item for sublist in l for item in sublist]
+    all_sites = flatten(list(PROFILE_SITES.values()))
+    for site in all_sites:
         hosts.remove_all_matching(name=site)
 
     try:
