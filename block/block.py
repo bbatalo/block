@@ -4,25 +4,6 @@ import sys
 from python_hosts.hosts import Hosts, HostsEntry
 from python_hosts.exception import UnableToWriteHosts
 
-SITES = [
-    "www.facebook.com",
-    "twitter.com",
-    "www.reddit.com",
-    "www.instagram.com",
-    "www.goodreads.com",
-    "9gag.com",
-    "yts.ag",
-    "www.snapchat.com",
-    "vk.com",
-    "www.4chan.com",
-    "www.buzzfeed.com",
-    "www.flickr.com",
-    "news.ycombinator.com",
-    "ispovesti.com",
-    "blic.rs",
-    "www.hltv.org",
-    "www.twitch.tv",
-]
 
 PROFILE_SITES = {
     "SOCIAL": [
@@ -61,12 +42,15 @@ PROFILE_SITES = {
     "PIRATE": ["yts.ag"],
 }
 
-PROFILES = ["SOCIAL", "MEME", "NEWS", "BLOGS", "ESPORTS", "PORN", "PIRATE"]
-
 pass_hosts = click.make_pass_decorator(Hosts)
+flatten = lambda l: [item for sublist in l for item in sublist]
 
 
 def find_hosts_path():
+    """
+    Determines hosts file path based on detected operating system.
+    """
+
     HOSTS_PATH = None
     if sys.platform in ("win32", "cygwin"):
         # TODO MIGHT NOT WORK ON EVERY SYSTEM!!!
@@ -84,46 +68,42 @@ def cli(ctx):
     A simple tool for blocking access to distracting websites, such as social media websites,
     news webistes, streaming services etc. This tools relies on modifying the hosts file.
     
-    It is not mean to be bullet-proof, but to provide easy way to break annoying habits 
+    It is not meant to be bullet-proof, but to provide easy way to break annoying habits 
     and increase productivity.
+
+    Example usage for blocking all available webistes:
+    block-hosts block-all
     """
+
     ctx.obj = Hosts(find_hosts_path())
 
 
 @cli.command(help="Block all sites from the curated list of sites.")
 @pass_hosts
 def block_all(hosts):
-    """
-
-    """
-    entries = []
-    flatten = lambda l: [item for sublist in l for item in sublist]
     all_sites = flatten(list(PROFILE_SITES.values()))
     for site in all_sites:
         new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
-        entries.append(new_entry)
+        hosts.add([new_entry])
 
-    hosts.add(entries)
     try:
         hosts.write()
-        print(f"All websites in a curated list have been blocked.")
+        print("All websites in a curated list have been blocked.")
         print("Some websites require browser restart for changes to take effect.")
         print("To see the list of blocked websites, run 'block-hosts list-websites'")
     except UnableToWriteHosts:
         print(
-            f"Unable to write to hosts file. Make sure Block has administrator privileges."
+            "Unable to write to hosts file. Make sure Block has administrator privileges."
         )
 
 
-@cli.command(
-    name="block-profile", help="Blocks several websites under a single profile."
-)
+@cli.command(help="Blocks several websites under a single profile.")
 @click.argument("profile")
 @pass_hosts
 def block_profile(hosts, profile):
     profile = str.upper(profile)
 
-    if profile in PROFILES:
+    if profile in PROFILE_SITES:
         for site in PROFILE_SITES[profile]:
             new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
             hosts.add([new_entry])
@@ -144,12 +124,11 @@ def block_profile(hosts, profile):
         )
 
 
-@cli.command(name="block-single", help="Block a single site.")
+@cli.command(help="Block a single site.")
 @click.argument("site")
 @pass_hosts
 def block_single(hosts, site):
     new_entry = HostsEntry(entry_type="ipv4", address="127.0.0.1", names=[site])
-
     hosts.add([new_entry])
 
     try:
@@ -165,7 +144,6 @@ def block_single(hosts, site):
 @cli.command(help="Unblock all blocked websites.")
 @pass_hosts
 def unblock_all(hosts):
-    flatten = lambda l: [item for sublist in l for item in sublist]
     all_sites = flatten(list(PROFILE_SITES.values()))
     for site in all_sites:
         hosts.remove_all_matching(name=site)
@@ -226,6 +204,7 @@ def unblock_single(hosts, site):
 )
 def list_websites(profile):
 
+    # TODO check if profile exists
     if profile is not None:
         profile = str.upper(profile)
         print(f"The following is a curated list of websites for profile '{profile}'")
@@ -235,7 +214,8 @@ def list_websites(profile):
         print(
             "The following is a curated list of websites that will be blocked by default."
         )
-        for site in SITES:
+        all_sites = flatten(list(PROFILE_SITES.values()))
+        for site in all_sites:
             print(site)
 
 
