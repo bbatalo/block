@@ -97,7 +97,7 @@ def block_all(hosts):
         )
 
 
-@cli.command(help="Blocks several websites under a single profile.")
+@cli.command(help="Block several websites under a single profile.")
 @click.argument("profile")
 @pass_hosts
 def block_profile(hosts, profile):
@@ -159,7 +159,7 @@ def unblock_all(hosts):
         )
 
 
-@cli.command(help="Specify the profile to unblock.")
+@cli.command(help="Unblock the specified profile.")
 @click.argument("profile")
 @pass_hosts
 def unblock_profile(hosts, profile):
@@ -195,7 +195,7 @@ def unblock_single(hosts, site):
         )
 
 
-@cli.command(help="Prints a curated list of websites that will be blocked by default.")
+@cli.command(help="Show a complete list of default websites.")
 @click.option(
     "-p",
     "--profile",
@@ -219,7 +219,7 @@ def list_websites(profile):
             print(site)
 
 
-@cli.command(help="Shows a list of available profiles.")
+@cli.command(help="Show a list of available profiles.")
 def list_profiles():
     """
     Prints a list of all available profiles for blocking."
@@ -230,7 +230,7 @@ def list_profiles():
         print(profile)
 
 
-@cli.command(help="Shows the location of used hosts file.")
+@cli.command(help="Show the location of used hosts file.")
 @pass_hosts
 def show_hosts(hosts):
     """
